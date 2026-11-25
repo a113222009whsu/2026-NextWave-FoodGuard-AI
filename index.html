@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>食安糾察隊 FoodGuard AI｜互動原型</title>
+<style>
+:root{--bg:#EEF2F0;--surface:#fff;--ink:#12343B;--muted:#5B6F73;--line:#D3DDDA;--brand:#12343B;--brand-ink:#fff;--tape:#F2C94C;--tape-ink:#12343B;--ok:#1E8A5A;--warn-bg:#FFF3C9;--warn-ink:#6B4E00;--soft:#E3F1EB;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C1A1D;--surface:#15272B;--ink:#E6F0EE;--muted:#9DB3B6;--line:#2B4247;--brand:#F2C94C;--brand-ink:#12343B;--tape:#F2C94C;--tape-ink:#12343B;--ok:#4FD18F;--warn-bg:#3A3210;--warn-ink:#F5DD8A;--soft:#1B3A36}}
+:root[data-theme="dark"]{--bg:#0C1A1D;--surface:#15272B;--ink:#E6F0EE;--muted:#9DB3B6;--line:#2B4247;--brand:#F2C94C;--brand-ink:#12343B;--tape:#F2C94C;--tape-ink:#12343B;--ok:#4FD18F;--warn-bg:#3A3210;--warn-ink:#F5DD8A;--soft:#1B3A36}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.6}
+.stage{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px 12px}
+.phone{width:100%;max-width:400px;min-height:720px;background:var(--surface);border:1px solid var(--line);border-radius:28px;overflow:hidden;display:flex;flex-direction:column}
+.tape{height:14px;background:repeating-linear-gradient(-45deg,var(--tape) 0 14px,var(--tape-ink) 14px 28px)}
+header{padding:16px 20px 8px}
+header h1{margin:0;font-size:22px;letter-spacing:.02em}
+header p{margin:2px 0 0;color:var(--muted);font-size:14px}
+main{flex:1;padding:8px 20px 20px}
+.view{display:none}.view.on{display:block}
+h2{font-size:18px;margin:12px 0 8px}
+.card{display:block;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;color:inherit;font:inherit;cursor:pointer}
+.card:hover,.card:focus-visible{border-color:var(--ink)}
+.card b{display:block;font-size:17px}.card span{color:var(--muted);font-size:14px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--tape);outline-offset:2px}
+.btn{width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:700;background:var(--brand);color:var(--brand-ink);cursor:pointer;margin-top:14px}
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px;margin:8px 0;font:inherit;color:inherit;cursor:pointer}
+.row .box{width:24px;height:24px;border-radius:6px;border:2px solid var(--muted);flex:none;display:grid;place-items:center;font-weight:700;color:#fff}
+.row.done{border-color:var(--ok)}.row.done .box{background:var(--ok);border-color:var(--ok)}
+.row small{display:block;color:var(--muted)}
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;padding:12px;font-size:14px;margin:12px 0}
+.stamp{background:var(--soft);border-radius:12px;padding:12px;font-size:13px;word-break:break-all}
+label{display:block;font-weight:700;margin:14px 0 4px;font-size:14px}
+input[type=text],select{width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:inherit;font:inherit}
+.chk{display:flex;gap:8px;align-items:center;margin-top:14px}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;margin:8px 0}
+.seg button{flex:1;padding:10px;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--brand);color:var(--brand-ink)}
+pre{white-space:pre-wrap;font:inherit;background:var(--bg);border-radius:12px;padding:14px;font-size:14px;margin:8px 0;border:1px solid var(--line)}
+.law{font-size:13px;color:var(--muted);margin:8px 0}
+.foot{font-size:12px;color:var(--muted);text-align:center;padding:10px 20px 16px;border-top:1px solid var(--line)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-size:14px;display:none}
+.back{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:4px 0}
+@media (prefers-reduced-motion:no-preference){.view.on{animation:in .18s ease-out}@keyframes in{from{opacity:.4}to{opacity:1}}}
+@media (max-width:480px){.stage{padding:0}.phone{border-radius:0;border:0;min-height:100vh}}
+</style>
+</head>
+<body>
+<div class="stage"><div class="phone">
+<div class="tape"></div>
+<header><h1>食安糾察隊 FoodGuard AI</h1><p>留得住證據、查得到法源、寄得出去</p></header>
+<main>
+<section class="view on" id="v-home">
+<h2>遇到餐點有狀況？</h2>
+<button class="card" data-go="evidence"><b>拍照存證</b><span>依清單保全餐點、包裝與訂單證據</span></button>
+<button class="card" data-go="facts"><b>生成信函</b><span>整理事實，產出客訴信與檢舉函草稿</span></button>
+<div class="note">本系統為法律資訊輔助與舉證引導工具，不構成法律意見，也不判定店家是否違法。</div>
+</section>
+
+<section class="view" id="v-evidence">
+<button class="back" data-go="home">‹ 回首頁</button>
+<h2>證據清單</h2>
+<p class="law">點選項目模擬拍攝完成（原型示範，不會真的開啟相機）。</p>
+<div id="list"></div>
+<div class="note">請保留實物並盡快冷藏。如有身體不適，先就醫並保留就診證明。</div>
+<div class="stamp" id="stamp">尚未存證</div>
+<button class="btn" data-go="facts">下一步：整理事實</button>
+</section>
+
+<section class="view" id="v-facts">
+<button class="back" data-go="evidence">‹ 回證據清單</button>
+<h2>確認事實</h2>
+<p class="law">以下內容由你確認後才會寫進信函。</p>
+<label for="f-who">外送平台或店家</label><input type="text" id="f-who" placeholder="例如：某外送平台／某學餐店家">
+<label for="f-when">用餐時間</label><input type="text" id="f-when" placeholder="例如：11 月 24 日 12:30">
+<label for="f-what">狀況</label>
+<select id="f-what"><option>發現頭髮</option><option>發現蟲</option><option>發現塑膠片</option><option>食物發霉</option><option>食物酸敗</option></select>
+<label class="chk"><input type="checkbox" id="f-sick"> 我有身體不適</label>
+<div class="note" id="sick-note" hidden>請先就醫並保留就診證明。本系統不提供醫療診斷。</div>
+<button class="btn" id="make">生成信函草稿</button>
+</section>
+
+<section class="view" id="v-letter">
+<button class="back" data-go="facts">‹ 修改事實</button>
+<h2>信函草稿</h2>
+<div class="seg" role="group" aria-label="信函類型">
+<button id="t-c" aria-pressed="true">給平台的客訴信</button><button id="t-r" aria-pressed="false">給衛生局的檢舉函</button></div>
+<pre id="out"></pre>
+<div class="law" id="laws"></div>
+<button class="btn" id="copy">複製內容</button>
+<button class="btn alt" data-go="home">回首頁</button>
+</section>
+</main>
+<div class="foot">原型示意：內容為範例模板，非實際 AI 輸出，也不構成法律意見。</div>
+</div></div>
+<div class="toast" id="toast" role="status">已複製</div>
+<script>
+(function(){
+var items=[["餐點全貌與異物特寫","光線充足、拍到整份餐點"],["包裝與有效日期","標示、外送袋一併拍攝"],["訂單明細截圖","含店家、時間、金額"],["平台客服對話截圖","如已聯繫客服"]];
+var done=[false,false,false,false],hash="尚未產生",stampTime="";
+var views=["home","evidence","facts","letter"],type="c";
+function $(i){return document.getElementById(i)}
+function show(n){if(views.indexOf(n)<0)n="home";views.forEach(function(v){$("v-"+v).classList.toggle("on",v===n)});window.scrollTo(0,0)}
+function go(n){try{location.hash=n}catch(e){}show(n)}
+window.addEventListener("hashchange",function(){show(location.hash.slice(1))});
+document.addEventListener("click",function(e){var t=e.target.closest("[data-go]");if(t)go(t.getAttribute("data-go"))});
+function renderList(){var l=$("list");l.textContent="";items.forEach(function(it,i){var b=document.createElement("button");b.className="row"+(done[i]?" done":"");b.setAttribute("aria-pressed",done[i]);
+var bx=document.createElement("span");bx.className="box";bx.textContent=done[i]?"✓":"";var d=document.createElement("span");var s=document.createElement("b");s.textContent=it[0];var m=document.createElement("small");m.textContent=it[1];d.appendChild(s);d.appendChild(m);b.appendChild(bx);b.appendChild(d);
+b.onclick=function(){done[i]=!done[i];renderList();stamp()};l.appendChild(b)})}
+function stamp(){var n=done.filter(Boolean).length;if(!n){hash="尚未產生";$("stamp").textContent="尚未存證";return}
+stampTime=new Date().toLocaleString("zh-TW",{hour12:false});var s=done.join(",")+"|"+stampTime;
+function put(h){hash=h;$("stamp").textContent="時間戳記："+stampTime+"　已保全 "+n+" 項　存證雜湊（SHA-256 前 16 碼）："+h}
+try{crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)).then(function(b){put(Array.from(new Uint8Array(b)).map(function(x){return("0"+x.toString(16)).slice(-2)}).join("").slice(0,16))}).catch(function(){put("（此瀏覽器不支援）")})}catch(e){put("（此瀏覽器不支援）")}}
+$("f-sick").onchange=function(){$("sick-note").hidden=!this.checked};
+function build(){var who=$("f-who").value.trim()||"（請填平台或店家）",when=$("f-when").value.trim()||"（請填用餐時間）",what=$("f-what").value,sick=$("f-sick").checked,id=/^[0-9a-f]{16}$/.test(hash)?hash:"（尚未存證）";
+var out,laws;
+if(type==="c"){out="【客訴信草稿】\n"+who+" 客服您好：\n\n我於 "+when+" 用餐時"+what+"。我已拍攝餐點、包裝與訂單截圖並保留實物（存證編號："+id+"）。"+(sick?"我並有身體不適，已就醫或將就醫。":"")+"\n\n請依貴方退款與賠償條款協助：\n1. 退還本次餐費\n2. 說明後續處理方式\n\n如需照片或訂單資料，我可立即提供。\n此致";
+laws="可能涉及依據：消費者保護法第 7 條（商品與服務之安全衛生）；平台條款是否顯失公平，可參考消費者保護法第 12 條。"}
+else{out="【檢舉函草稿】\n地方主管機關衛生局 您好：\n\n我於 "+when+" 於 "+who+" 用餐，"+what+"，懷疑涉及《食品安全衛生管理法》第 15 條第 1 項之情形。是否違法，請由主管機關認定。\n\n附上餐點照片、包裝、訂單紀錄（存證編號："+id+"）。"+(sick?"我有身體不適，已就醫或將就醫。":"")+"\n\n請協助查處，謝謝。";
+laws="可能涉及依據：食品安全衛生管理法第 15 條第 1 項、第 44 條。也可撥打 1919 食安專線。"}
+$("out").textContent=out;$("laws").textContent=laws+"（條文請以全國法規資料庫現行版本為準）"}
+$("make").onclick=function(){type="c";$("t-c").setAttribute("aria-pressed","true");$("t-r").setAttribute("aria-pressed","false");build();go("letter")};
+["c","r"].forEach(function(k){$("t-"+k).onclick=function(){type=k;$("t-c").setAttribute("aria-pressed",k==="c");$("t-r").setAttribute("aria-pressed",k==="r");build()}});
+$("copy").onclick=function(){var t=$("out").textContent,ok=function(){var x=$("toast");x.style.display="block";setTimeout(function(){x.style.display="none"},1400)};
+try{navigator.clipboard.writeText(t).then(ok,ok)}catch(e){ok()}};
+renderList();show(location.hash.slice(1)||"home");
+})();
+</script>
+</body>
+</html>
