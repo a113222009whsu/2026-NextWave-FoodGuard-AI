@@ -1,0 +1,5 @@
+# 以本地端 Ollama + LlamaIndex 測試為主，不含影像模型訓練套件
+llama-index-core
+llama-index-llms-ollama
+llama-index-embeddings-ollama
+requests
